@@ -113,6 +113,7 @@ class DataController : ObservableObject {
         }
         
         sensorDataBuffer.removeAll(keepingCapacity: true)
+        telemetryDataBuffer.removeAll(keepingCapacity: true)
     }
     
     func newRecording(){

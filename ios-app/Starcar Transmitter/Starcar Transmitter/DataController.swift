@@ -36,8 +36,9 @@ struct Mission : Codable{
     var missionID: Int
 }
 
-class DataController : ObservableObject {
-    @MainActor static let instance = DataController()
+// TODO: Remove hack of unchecked sendable
+class DataController : ObservableObject, @unchecked Sendable {
+    static let instance = DataController()
     
     var bluetoothReader: BluetoothReader
     var motionReader: MotionReader
@@ -55,6 +56,7 @@ class DataController : ObservableObject {
     var curMission : Mission?
     
     private var timer = Timer()
+    private var starTime: Int?
     
     init (){
         self.bluetoothReader = BluetoothReader( targetServiceUUID: config.targetServiceUUID, targetCharacteristicUUID: config.targetCharacteristicUUID)
@@ -79,8 +81,18 @@ class DataController : ObservableObject {
 //        self.motionReader.measure()
     }
     
-    func getTimeStamp() -> Int{
+    func milliEpochTime() -> Int{
         return Int(Date().timeIntervalSince1970 * 1000)
+    }
+    
+    func setStartTime() {
+        self.starTime = self.milliEpochTime()
+    }
+    
+    func getTimeStamp() -> Int{
+        guard let start = self.starTime else {return 0}
+        
+        return milliEpochTime() - start
     }
     
     func record(){
@@ -144,6 +156,7 @@ class DataController : ObservableObject {
         s.on(clientEvent: .connect) {data, ack in
             print("Socket connected!!!")
             self.resumeRecording()
+            self.setStartTime()
         }
         
         s.on(clientEvent: .disconnect) { data, ack in

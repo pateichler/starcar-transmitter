@@ -23,7 +23,7 @@ struct ContentView: View {
         if dataController.recording {
             RecordingView()
         }else{
-            if dataController.isFinished{
+            if dataController.isRecap{
                 RecapView()
             }else{
                 NavigationStack{

@@ -15,7 +15,8 @@ class BluetoothReader: NSObject, ObservableObject{
     private var targetCharacteristicUUID: CBUUID
      
     
-    @Published var dataVal: Int32 = 0
+    @Published var gauge1: Int32 = 0
+    @Published var gauge2: Int32 = 0
     @Published var ready: Bool = false
     
     var peripheral: CBPeripheral?
@@ -105,8 +106,10 @@ extension BluetoothReader: CBPeripheralDelegate{
         
         
         guard let data = characteristic.value else {return}
-        self.dataVal = data.withUnsafeBytes{ (pointer: UnsafeRawBufferPointer) -> Int32 in
-            return pointer.load(as: Int32.self).littleEndian
+        (self.gauge1, self.gauge2) = data.withUnsafeBytes{ pointer in
+            let val1 = pointer.load(as: Int32.self).littleEndian
+            let val2 = pointer.load(fromByteOffset: MemoryLayout<Int32>.size, as: Int32.self).littleEndian
+            return (val1, val2)
         }
         
         self.onReceiveData?()
@@ -114,7 +117,8 @@ extension BluetoothReader: CBPeripheralDelegate{
     
     func measure(){
         if Settings.instance.mockDevice {
-            self.dataVal = Int32.random(in: 1..<100)
+            self.gauge1 = Int32.random(in: 1..<100)
+            self.gauge2 = Int32.random(in: 1..<100)
             self.onReceiveData?()
             return
         }

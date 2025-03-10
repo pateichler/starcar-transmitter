@@ -98,7 +98,7 @@ class DataController : ObservableObject, @unchecked Sendable {
     func record(){
         self.motionReader.measure()
         
-        sensorDataBuffer.append(SensorData(timeStamp: self.getTimeStamp(), accelX: self.motionReader.accel.x, accelY: self.motionReader.accel.y, accelZ: self.motionReader.accel.z, gauge1: self.bluetoothReader.dataVal, gauge2: 0))
+        sensorDataBuffer.append(SensorData(timeStamp: self.getTimeStamp(), accelX: self.motionReader.accel.x, accelY: self.motionReader.accel.y, accelZ: self.motionReader.accel.z, gauge1: self.bluetoothReader.gauge1, gauge2: self.bluetoothReader.gauge2))
         
         if sensorDataBuffer.count > config.sensorBufferSize{
             sendData()

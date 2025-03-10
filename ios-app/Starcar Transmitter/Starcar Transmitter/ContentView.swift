@@ -84,15 +84,18 @@ struct RecordingView: View {
                 Button("Stop", action: dataController.stopRecording)
             }.padding()
             
-            
-            Text("\(bluetoothReader.dataVal)")
+            HStack{
+                Text("Gauge 1: \(bluetoothReader.gauge1)")
+                Spacer()
+                Text("Gauge 2: \(bluetoothReader.gauge2)")
+            }
             HStack{
                 Text("X: \(String(format: "%.3f", motionReader.accel.x))")
                 Text("Y: \(String(format: "%.3f", motionReader.accel.y))")
                 Text("Z: \(String(format: "%.3f", motionReader.accel.z))")
             }
         }
-        .padding()
+        .padding(.horizontal, 20)
     }
 }
 

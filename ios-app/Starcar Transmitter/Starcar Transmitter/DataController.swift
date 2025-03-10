@@ -63,11 +63,16 @@ class DataController : ObservableObject, @unchecked Sendable {
         self.motionReader = MotionReader()
         self.locationReader = LocationReader()
 
-        self.socketManager = SocketManager(socketURL: config.serverURL)
+        self.socketManager = SocketManager(socketURL: Settings.instance.getServerURL())
         
         self.bluetoothReader.onReceiveData = record
         self.locationReader.onUpdate = locationUpdate
         self.locationReader.requestLocation()
+    }
+    
+    func reloadSocketManager(){
+        self.socketManager.disconnect()
+        self.socketManager = SocketManager(socketURL: Settings.instance.getServerURL())
     }
     
     func locationUpdate(latt: Double, lng: Double){
@@ -131,7 +136,7 @@ class DataController : ObservableObject, @unchecked Sendable {
     func newRecording(){
         recording = true
         
-        var request = URLRequest(url: config.serverURL.appendingPathComponent("/mission/create"))
+        var request = URLRequest(url: Settings.instance.getServerURL().appendingPathComponent("/mission/create"))
         request.httpMethod = "POST"
         
         URLSession.shared.dataTask(with: request) { (data, response, error) in

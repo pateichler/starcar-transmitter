@@ -23,6 +23,11 @@ struct SettingsView: View {
                     .padding(.bottom, 50)
                 //            Spacer()
                 VStack(spacing: 20){
+                    Toggle(isOn: $settings.devServer, label: {
+                        Text("Use development server")
+                    }).onChange(of: settings.devServer, {
+                        settings.onDevServerChange()
+                    })
                     Toggle(isOn: $settings.mockDevice, label: {
                         Text("Mock Bluetooth Device")
                     })

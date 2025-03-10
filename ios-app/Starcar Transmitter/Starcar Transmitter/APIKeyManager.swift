@@ -21,6 +21,12 @@ class APIKeyManager : ObservableObject, @unchecked Sendable {
     private let accountAttr = "API-Key"
     
     init(){
+        reloadKey()
+    }
+    
+    func reloadKey(){
+        apiKey = nil
+        
         do{
             try self.loadKey()
         }catch KeychainError.unhandledError(let status){
@@ -39,7 +45,7 @@ class APIKeyManager : ObservableObject, @unchecked Sendable {
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: accountAttr,
-            kSecAttrServer as String: config.serverDomain,
+            kSecAttrServer as String: Settings.instance.getServerDomain(),
             kSecMatchLimit as String: kSecMatchLimitOne,
             kSecReturnData as String: true
         ]
@@ -72,7 +78,7 @@ class APIKeyManager : ObservableObject, @unchecked Sendable {
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: accountAttr,
-            kSecAttrServer as String: config.serverDomain,
+            kSecAttrServer as String: Settings.instance.getServerDomain(),
             kSecValueData as String: data
         ]
         
@@ -104,7 +110,7 @@ class APIKeyManager : ObservableObject, @unchecked Sendable {
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: accountAttr,
-            kSecAttrServer as String: config.serverDomain
+            kSecAttrServer as String: Settings.instance.getServerDomain()
         ]
         
         let status = SecItemDelete(query as CFDictionary)

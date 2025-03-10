@@ -136,18 +136,7 @@ class DataController : ObservableObject, @unchecked Sendable {
     func newRecording(){
         recording = true
         
-        var request = URLRequest(url: Settings.instance.getServerURL().appendingPathComponent("/mission/create"))
-        request.httpMethod = "POST"
-        
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let data = data else {return}
-            
-            //TODO: Error checks
-            let result = try! JSONDecoder().decode(Mission.self, from: data)
-            self.curMission = result
-            print("Starting mission: \(self.curMission!.missionID)")
-            self.startSocketConnection()
-        }.resume()
+        self.startSocketConnection()
     }
     
     func startSocketConnection(){
@@ -160,8 +149,16 @@ class DataController : ObservableObject, @unchecked Sendable {
         
         s.on(clientEvent: .connect) {data, ack in
             print("Socket connected!!!")
-            self.resumeRecording()
-            self.setStartTime()
+            
+            self.socket!.emitWithAck("create-mission").timingOut(after: 0) { data in
+                guard let missionID = data.first as? Int else {
+                    print("Error: Unable to get missionID!")
+                    self.stopRecording()
+                    return
+                }
+                
+                self.startNewMission(missionID: missionID)
+            }
         }
         
         s.on(clientEvent: .disconnect) { data, ack in
@@ -169,6 +166,13 @@ class DataController : ObservableObject, @unchecked Sendable {
         }
         
         s.connect()
+    }
+    
+    func startNewMission(missionID: Int){
+        self.curMission = Mission(missionID: missionID)
+        
+        self.resumeRecording()
+        self.setStartTime()
     }
     
     func resumeRecording(){
